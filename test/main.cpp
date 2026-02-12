@@ -3,8 +3,7 @@
 
 #include <aware/ds/iterator/common_iterator.hpp>
 
-template <typename T>
-struct ArrayCursor {
+template <typename T> struct ArrayCursor {
     T* ptr;
 
     T& dereference() const { return *ptr; }
@@ -27,8 +26,7 @@ struct Node {
     Node* next = nullptr;
 };
 
-template <typename T>
-struct ForwardListCursor {
+template <typename T> struct ForwardListCursor {
     Node* current;
 
     T& dereference() const { return current->value; }
@@ -37,17 +35,17 @@ struct ForwardListCursor {
         if (current) current = current->next;
     }
 
-    bool is_equal(const ForwardListCursor& oth) const {
-        return current == oth.current;
-    }
+    bool is_equal(const ForwardListCursor& oth) const { return current == oth.current; }
 };
 
 int main() {
     {
         int data[] = {10, 20, 30, 40, 50};
 
-        using Iter = awr::iter::CommonIterator<int, ArrayCursor<int>, false, awr::iter::tag::RandomAccessIterator>;
-        using ConstIter = awr::iter::CommonIterator<int, ArrayCursor<int>, true, awr::iter::tag::RandomAccessIterator>;
+        using Iter = awr::iter::CommonIterator<int, ArrayCursor<int>, false,
+                                               awr::iter::tag::RandomAccessIterator>;
+        using ConstIter = awr::iter::CommonIterator<int, ArrayCursor<int>, true,
+                                                    awr::iter::tag::RandomAccessIterator>;
 
         Iter begin(ArrayCursor<int>{&data[0]});
         Iter end(ArrayCursor<int>{&data[5]});
@@ -74,8 +72,7 @@ int main() {
         assert(end > begin);
         assert(begin <= middle);
 
-        std::cout << "all ArrayIterator asserts passed successfully\n"
-                  << std::endl;
+        std::cout << "all ArrayIterator asserts passed successfully\n" << std::endl;
     }
 
     {
@@ -83,7 +80,8 @@ int main() {
         Node n2{20, &n3};
         Node n1{10, &n2};
 
-        using ListIter = awr::iter::CommonIterator<int, ForwardListCursor<int>, false, awr::iter::tag::ForwardIterator>;
+        using ListIter = awr::iter::CommonIterator<int, ForwardListCursor<int>, false,
+                                                   awr::iter::tag::ForwardIterator>;
 
         ListIter begin(ForwardListCursor<int>{&n1});
         ListIter end(ForwardListCursor<int>{nullptr});

@@ -1,7 +1,16 @@
+/**
+ * @file tag.hpp
+ * @brief Iterator category tags and verification concept.
+ */
+
 #pragma once
 
-#include <aware/meta/verify/is_same.hpp>
+#include <aware/meta/verification.hpp>
 
+/**
+ * @namespace tag
+ * @brief Empty classes used as markers for iterator categories.
+ */
 namespace awr::iter {
 
 namespace tag {
@@ -22,14 +31,16 @@ struct ContiguousIterator : RandomAccessIterator {};
 
 namespace trait {
 
+/**
+ * @brief Concept to verify if a type is one of the valid iterator tags.
+ */
 template <typename MaybeIteratorTag>
-concept IterTag =
-    meta::IsSame<MaybeIteratorTag, tag::InputIterator>::value ||
-    meta::IsSame<MaybeIteratorTag, tag::OutputIterator>::value ||
-    meta::IsSame<MaybeIteratorTag, tag::ForwardIterator>::value ||
-    meta::IsSame<MaybeIteratorTag, tag::BidirectionalIterator>::value ||
-    meta::IsSame<MaybeIteratorTag, tag::RandomAccessIterator>::value ||
-    meta::IsSame<MaybeIteratorTag, tag::ContiguousIterator>::value;
+concept IterTag = meta::IsSame<MaybeIteratorTag, tag::InputIterator>::val ||
+                  meta::IsSame<MaybeIteratorTag, tag::OutputIterator>::val ||
+                  meta::IsSame<MaybeIteratorTag, tag::ForwardIterator>::val ||
+                  meta::IsSame<MaybeIteratorTag, tag::BidirectionalIterator>::val ||
+                  meta::IsSame<MaybeIteratorTag, tag::RandomAccessIterator>::val ||
+                  meta::IsSame<MaybeIteratorTag, tag::ContiguousIterator>::val;
 
 }  // namespace trait
 

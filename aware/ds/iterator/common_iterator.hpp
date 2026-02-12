@@ -1,3 +1,8 @@
+/**
+ * @file common_iterator.hpp
+ * @brief Main header for the generic CommonIterator class.
+ */
+
 #pragma once
 
 #include <concepts>
@@ -9,92 +14,148 @@
 
 namespace awr::iter {
 
+/**
+ * @class CommonIterator
+ * @brief A generic iterator interface that wraps a Cursor and maps its methods to standard iterator
+ * operators.
+ *
+ * CommonIterator serves as a generic interface wrapper that decouples traversal logic from the
+ * iterator's operator surface. Instead of implementing complex iterator logic for every container,
+ * the `aware` framework uses this class to map a lightweight CursorT (defining 'how to move') to a
+ * full set of operators. CommonIterator reduces code duplication when building iterators for
+ * various data structures.
+ *
+ * @tparam ValT The value type of the underlying container.
+ * @tparam CursorT The strategy providing core movement and access logic.
+ * @tparam is_const Boolean flag to determine if this is a const_iterator.
+ * @tparam Tag Capability marker defining the iterator category.
+ */
+
 template <typename ValT, trait::IterCursor CursorT, bool is_const, trait::IterTag Tag>
 class CommonIterator {
   public:  // nested types:
     using ValType = ValT;
-    using ValPtr = meta::Conditional<is_const, const ValT*, ValT*>::type;
-    using ValRef = meta::Conditional<is_const, const ValT&, ValT&>::type;
+    using ValPtr = typename meta::Conditional<is_const, const ValT*, ValT*>::type;
+    using ValRef = typename meta::Conditional<is_const, const ValT&, ValT&>::type;
 
     using Category = Tag;
     using DiffType = std::ptrdiff_t;
 
-  private:  // data members:
-    CursorT cursor_;
+  private:            // data members:
+    CursorT cursor_;  ///< The underlying cursor instance.
 
   public:  // member functions:
-    CommonIterator() {}
+    /**
+     * @brief Default constructor.
+     */
+    CommonIterator() = default;
 
-    explicit CommonIterator(const CursorT cursor) : cursor_(cursor) {}
+    /**
+     * @brief Construct an iterator from a specific cursor position.
+     * @param cursor The cursor instance to wrap.
+     */
+    explicit CommonIterator(const CursorT& cursor) : cursor_(cursor) {}
 
+    // Default copy/move constructors and assignment operators
     CommonIterator(const CommonIterator& oth) = default;
     CommonIterator& operator=(const CommonIterator& oth) = default;
     CommonIterator(const CommonIterator&& oth) = default;
     CommonIterator& operator=(const CommonIterator&& oth) = default;
 
-    template <bool oth_const> requires(is_const && !oth_const && std::copy_constructible<CursorT>)
-    CommonIterator(const CommonIterator<ValT, CursorT, oth_const, Tag>& oth) : cursor_(oth.cursor_) {}
+    /**
+     * @brief Conversion constructor allowing iterator to const_iterator conversion.
+     * @tparam oth_const Constness of the source iterator.
+     * @note Enabled only when converting from non-const to const.
+     */
+    template <bool oth_const> requires(is_const && !oth_const)
+    CommonIterator(const CommonIterator<ValT, CursorT, oth_const, Tag>& oth)
+        : cursor_(oth.cursor_) {}
 
-    ValRef operator*() const {
-        return cursor_.dereference();
-    }
+    /**
+     * @brief Dereferences the iterator to access the value.
+     * @return Reference to the value (const or non-const based on is_const).
+     */
+    ValRef operator*() const;
 
-    ValPtr operator->() const {
-        return &(cursor_.dereference());
-    }
+    /**
+     * @brief Accesses the underlying value via pointer.
+     * @return Pointer to the value.
+     */
+    ValPtr operator->() const;
 
-    CommonIterator& operator++() {
-        cursor_.increment();
-        return *this;
-    }
+    /**
+     * @brief Pre-increment operator.
+     * @return Reference to this iterator after incrementing.
+     */
+    CommonIterator& operator++();
 
-    CommonIterator operator++(int) {
-        CommonIterator tmp = *this;
-        cursor_.increment();
-        return tmp;
-    }
+    /**
+     * @brief Post-increment operator.
+     * @return A copy of the iterator before incrementing.
+     */
+    CommonIterator operator++(int);
 
-    CommonIterator& operator--() requires(std::derived_from<Tag, tag::BidirectionalIterator>)
-    {
-        cursor_.decrement();
-        return *this;
-    }
+    /**
+     * @brief Pre-decrement operator.
+     * @note Available only for Bidirectional or stronger categories.
+     */
+    CommonIterator& operator--() requires(std::derived_from<Tag, tag::BidirectionalIterator>);
 
-    CommonIterator operator--(int) requires(std::derived_from<Tag, tag::BidirectionalIterator>)
-    {
-        CommonIterator tmp = *this;
-        cursor_.decrement();
-        return tmp;
-    }
+    /**
+     * @brief Post-decrement operator.
+     * @note Available only for Bidirectional or stronger categories.
+     */
+    CommonIterator operator--(int) requires(std::derived_from<Tag, tag::BidirectionalIterator>);
 
-    CommonIterator operator+(DiffType n) const requires(std::derived_from<Tag, tag::RandomAccessIterator>)
-    {
-        auto next_cursor = cursor_;
-        next_cursor.advance(n);
-        return CommonIterator(next_cursor);
-    }
+    /**
+     * @brief Offset addition operator.
+     * @note Available only for RandomAccess categories.
+     */
+    CommonIterator operator+(DiffType n) const
+        requires(std::derived_from<Tag, tag::RandomAccessIterator>);
 
-    CommonIterator& operator+=(DiffType n) requires(std::derived_from<Tag, tag::RandomAccessIterator>);
-    CommonIterator& operator-=(DiffType n) requires(std::derived_from<Tag, tag::RandomAccessIterator>);
+    /**
+     * @brief Compound addition assignment.
+     * @note Available only for RandomAccess categories.
+     */
+    CommonIterator& operator+=(DiffType n)
+        requires(std::derived_from<Tag, tag::RandomAccessIterator>);
 
-    DiffType operator-(const CommonIterator& other) const requires(std::derived_from<Tag, tag::RandomAccessIterator>)
-    {
-        return cursor_.distance_to(other.cursor_);
-    }
+    /**
+     * @brief Compound subtraction assignment.
+     * @note Available only for RandomAccess categories.
+     */
+    CommonIterator& operator-=(DiffType n)
+        requires(std::derived_from<Tag, tag::RandomAccessIterator>);
 
-    bool operator==(const CommonIterator& oth) const {
-        return cursor_.is_equal(oth.cursor_);
-    }
+    /**
+     * @brief Calculates the distance between two iterators.
+     * @note Available only for RandomAccess categories.
+     */
+    DiffType operator-(const CommonIterator& oth) const
+        requires(std::derived_from<Tag, tag::RandomAccessIterator>);
 
+    /**
+     * @brief Equality comparison operator.
+     */
+    bool operator==(const CommonIterator& oth) const;
+
+    /**
+     * @brief Spaceship comparison operator.
+     * @note Available only for RandomAccess categories.
+     */
     template <bool is_oth_const>
     auto operator<=>(const CommonIterator<ValT, CursorT, is_oth_const, Tag>& oth) const
-        requires(std::derived_from<Tag, tag::RandomAccessIterator>)
-    {
-        return cursor_.compare(oth.cursor_);
-    }
+        requires(std::derived_from<Tag, tag::RandomAccessIterator>);
 
   public:  // friendship declaration:
+    /**
+     * @brief Allows access to private class members between const and non-const versions of the
+     * iterator.
+     */
     friend class CommonIterator<ValT, CursorT, !is_const, Tag>;
 };
 
 }  // namespace awr::iter
+
+#include "common_iterator.tpp"
