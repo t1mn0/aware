@@ -1,7 +1,16 @@
+/**
+ * @file remove_cv.hpp
+ * @brief Utilities for removing the const and volatile qualifiers from a type if it contains.
+ */
+
 #pragma once
 
 namespace awr::meta {
 
+/**
+ * @brief Removes both const and volatile qualifiers from type T.
+ * @tparam T The original type.
+ */
 template <class T>
 struct RemoveCV {
     typedef T type;
@@ -22,6 +31,9 @@ struct RemoveCV<const volatile T> {
     typedef T type;
 };
 
+/**
+ * @brief Removes only the const qualifier from type T.
+ */
 template <class T>
 struct RemoveConst {
     typedef T type;
@@ -32,13 +44,16 @@ struct RemoveConst<const T> {
     typedef T type;
 };
 
+/**
+ * @brief Removes only the volatile qualifier from type T.
+ */
 template <class T>
-struct remove_volatile {
+struct RemoveVolatile {
     typedef T type;
 };
 
 template <class T>
-struct remove_volatile<volatile T> {
+struct RemoveVolatile<volatile T> {
     typedef T type;
 };
 

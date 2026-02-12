@@ -6,6 +6,7 @@ UseTab: Never
 PointerAlignment: Left
 SpacesBeforeTrailingComments: 2
 AlignOperands: Align
+AlignTrailingComments: false
 AccessModifierOffset: -2
 ColumnLimit: 0
 MaxEmptyLinesToKeep: 2
