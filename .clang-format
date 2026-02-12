@@ -14,7 +14,7 @@ IncludeBlocks: Preserve
 IndentPPDirectives: AfterHash
 RequiresClausePosition: WithPreceding
 BreakBeforeBraces: Attach
-BreakTemplateDeclarations: No
+BreakTemplateDeclarations: Custom
 SpaceInEmptyParentheses: false
 SpacesInAngles: false
 SpaceBeforeParens: ControlStatements
