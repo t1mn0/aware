@@ -54,7 +54,8 @@ class CommonIterator {
      * @brief Construct an iterator from a specific cursor position.
      * @param cursor The cursor instance to wrap.
      */
-    explicit CommonIterator(const CursorT& cursor) : cursor_(cursor) {}
+    explicit CommonIterator(const CursorT& cursor) : cursor_(cursor) {
+    }
 
     // Default copy/move constructors and assignment operators
     CommonIterator(const CommonIterator& oth) = default;
@@ -67,9 +68,11 @@ class CommonIterator {
      * @tparam oth_const Constness of the source iterator.
      * @note Enabled only when converting from non-const to const.
      */
-    template <bool oth_const> requires(is_const && !oth_const)
+    template <bool oth_const>
+    requires(is_const && !oth_const)
     CommonIterator(const CommonIterator<ValT, CursorT, oth_const, Tag>& oth)
-        : cursor_(oth.cursor_) {}
+        : cursor_(oth.cursor_) {
+    }
 
     /**
      * @brief Dereferences the iterator to access the value.

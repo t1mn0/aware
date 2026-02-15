@@ -4,7 +4,7 @@ target_include_directories(aware_ds INTERFACE
     $<BUILD_INTERFACE:${AWARE_ROOT_DIR}>
 )
 
-target_link_libraries(aware_ds INTERFACE aware_meta)
+target_link_libraries(aware_ds INTERFACE aware_meta eav)
 
 target_sources(aware_ds INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/vector.hpp
