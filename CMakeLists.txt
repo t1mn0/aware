@@ -12,6 +12,7 @@ add_subdirectory(2ndparty)
 add_subdirectory(3rdparty)
 add_subdirectory(aware/meta)
 add_subdirectory(aware/ds)
+add_subdirectory(aware/math)
 
 enable_testing()
 add_subdirectory(test)
